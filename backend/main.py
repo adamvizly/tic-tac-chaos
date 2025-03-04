@@ -1,7 +1,17 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 import json
+from game_logic import process_move
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change this to specific frontend domain if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Store active games {game_id: game_state}
 games = {}
@@ -26,6 +36,14 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         }
     
     games[game_id]["players"][player_id] = websocket
+    
+    # Send the initial game state to the newly connected player
+    initial_state = {
+        "board": games[game_id]["board"],
+        "turn": games[game_id]["turn"],
+        "special_pieces": games[game_id]["special_pieces"],
+    }
+    await websocket.send_text(json.dumps(initial_state))
     
     try:
         while True:

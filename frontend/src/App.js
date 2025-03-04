@@ -16,6 +16,10 @@ function App() {
     }
   }, [gameId, playerId]);
 
+  useEffect(() => {
+    console.log("Updated gameState:", gameState); // Debugging line
+  }, [gameState]);
+
   return (
     <div className="app-container">
       {!gameId ? (

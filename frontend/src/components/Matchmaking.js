@@ -3,24 +3,28 @@ import React, { useState } from 'react';
 function Matchmaking({ setGameId, setPlayerId }) {
   const [loading, setLoading] = useState(false);
 
-  const findMatch = async () => {
+  const findGame = async () => {
     setLoading(true);
     try {
       const response = await fetch('http://localhost:8000/matchmaking');
       const data = await response.json();
-      setGameId(data.game_id);
-      setPlayerId(Math.random().toString(36).substring(7)); // Generate random player ID
+
+      if (data.game_id) {
+        setGameId(data.game_id);
+        setPlayerId(Math.random().toString(36).substr(2, 5)); // Generate random player ID
+      }
     } catch (error) {
-      console.error('Error finding match:', error);
+      console.error('Error finding game:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="matchmaking-container">
+    <div className="matchmaking">
       <h2>Tic-Tac-Chaos</h2>
-      <button onClick={findMatch} disabled={loading}>
-        {loading ? 'Finding match...' : 'Find Match'}
+      <button onClick={findGame} disabled={loading}>
+        {loading ? "Finding game..." : "Find Match"}
       </button>
     </div>
   );
