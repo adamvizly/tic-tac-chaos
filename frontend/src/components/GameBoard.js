@@ -1,29 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Cell from "./Cell";
 
 function GameBoard({ gameState, playerId, socket }) {
   if (!gameState || !Array.isArray(gameState.board)) {
     return <div>Loading game...</div>;
   }
-  // const [board,setBoard]=useState();
-  // const [turn,setTurn]=useState();
-
-  // useEffect(()=>{
-  //   setBoard(gameState.board)
-  //   setTurn(gameState.turn)
-  // },[gameState])
-  const { board, turn } = gameState;
+  
+  const { board, turn, activeBigCell } = gameState;
 
   // Sends a move to the backend.
-  // Converts mini-board indices into overall board indices.
-  const handleCellClick = (bigRow, bigCol, miniRow, miniCol, piece_type="normal") => {
+  // Converts mini-board indices into overall board indices using your mapping.
+  const handleCellClick = (bigRow, bigCol, miniRow, miniCol, piece_type = "normal") => {
     console.log("handleCellClick", bigRow, bigCol, miniRow, miniCol);
+    // Using your mapping (note: adjust as needed if mapping needs to be flipped)
     const overallRow = bigRow * 3 + miniCol;
-    const overallCol = bigCol * 3  + miniRow;
+    const overallCol = bigCol * 3 + miniRow;
     console.log(overallRow, overallCol);
     if (socket && turn === playerId) {
-      const overallRow = bigRow * 3 + miniCol;
-      const overallCol = bigCol * 3  + miniRow;
       console.log("sending move", overallRow, overallCol, playerId, piece_type);
       const move = {
         x: overallRow,
@@ -58,8 +51,13 @@ function GameBoard({ gameState, playerId, socket }) {
           {[0, 1, 2].map((bigCol) => {
             const miniCells = getMiniBoardCells(bigRow, bigCol);
             const winner = cellIsWon(miniCells);
+            // Check if this big cell is the active board.
+            const isActive = activeBigCell && activeBigCell.row === bigRow && activeBigCell.col === bigCol;
             return (
-              <div key={`${bigRow}-${bigCol}`} className="big-cell">
+              <div
+                key={`${bigRow}-${bigCol}`}
+                className={`big-cell ${isActive ? "active-big-cell" : ""}`}
+              >
                 <div className="mini-board">
                   {[0, 1, 2].map((miniRow) => (
                     <div key={miniRow} className="mini-row">

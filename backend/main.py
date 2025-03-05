@@ -91,5 +91,6 @@ def matchmaking():
         "turn": None,
         "players": {},
         "special_pieces": {},
+        "activeBigCell": None
     }
     return {"game_id": new_game_id}

@@ -1,3 +1,17 @@
+
+def is_board_playable(mini_board):
+    """
+    Check if a mini-board (a 3x3 list) is playable.
+    It's playable if it is not won and at least one cell is empty.
+    """
+    # Simple check: if any cell is empty, assume board is playable.
+    for row in mini_board:
+        for cell in row:
+            if cell == "":
+                return True
+    return False
+
+
 def process_move(game_id: str, move: dict, games: dict):
     """Handles game logic, special piece effects, and updates the board."""
     game = games[game_id]
@@ -5,8 +19,23 @@ def process_move(game_id: str, move: dict, games: dict):
     player_id = move["player"]
     player = games[game_id]["players"][player_id]
     piece_type = move.get("piece_type", "normal")
+
+    # Enforce active board rule if set:
+    if game.get("activeBigCell") is not None:
+        active = game["activeBigCell"]
+        print(active)
+        # Determine which big cell the move is in.
+        move_big_row, move_big_col = x // 3, y // 3
+        if move_big_row != active["row"] or move_big_col != active["col"]:
+            return {
+                "error": f"Invalid move. You must play in board ({active['row']}, {active['col']}).",
+                "board": game["board"],
+                "turn": player_id,
+                "activeBigCell": game["activeBigCell"]
+            }
     
-    if game["board"][x][y] == "":  # If the cell is empty
+    # Process the move if the cell is empty:
+    if game["board"][x][y] == "":
         game["board"][x][y] = player
         
         # Handle special pieces
@@ -18,8 +47,30 @@ def process_move(game_id: str, move: dict, games: dict):
             apply_stacker_ability(game, x, y)
         
         game["turn"] = next(pid for pid in games[game_id]["players"] if pid != player_id)
+        
+        # Determine new active big cell based on the mini cell coordinates:
+        new_active_row = x % 3  # mini row within the big cell
+        new_active_col = y % 3  # mini col within the big cell
+
+        # Extract the target mini-board from the overall board:
+        target_mini_board = []
+        for i in range(3):
+            row = []
+            for j in range(3):
+                row.append(game["board"][new_active_row * 3 + i][new_active_col * 3 + j])
+            target_mini_board.append(row)
+
+        # If the target mini-board is playable, set it as active; otherwise allow play anywhere.
+        if is_board_playable(target_mini_board):
+            game["activeBigCell"] = {"row": new_active_row, "col": new_active_col}
+        else:
+            game["activeBigCell"] = None
     
-    return {"board": game["board"], "turn": game["turn"]}
+    return {
+        "board": game["board"],
+        "turn": game["turn"],
+        "activeBigCell": game["activeBigCell"]
+    }
 
 
 def apply_phantom_ability(game, player, x, y):

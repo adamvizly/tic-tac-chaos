@@ -129,10 +129,15 @@ body {
     background-color: rgba(200, 200, 200, 0.4);
   }
 
-.board-overlay.O{
-  color: blue;
-}
+  .active-big-cell .cell {
+    background-color: rgba(255, 255, 0, 0.2);
+    pointer-events: auto;
+  }
 
-.board-overlay.X {
-  color: red;
-}
+  .board-overlay.O{
+    color: blue;
+  }
+
+  .board-overlay.X {
+    color: red;
+  }
