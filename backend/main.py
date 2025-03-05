@@ -30,12 +30,19 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
     if game_id not in games:
         games[game_id] = {
             "board": [["" for _ in range(9)] for _ in range(9)], 
-            "turn": "X", 
+            "turn": None,  # Use player_id for turn
             "players": {},
-            "special_pieces": {"X": None, "O": None},
+            "special_pieces": {},
         }
     
-    games[game_id]["players"][player_id] = websocket
+    # Assign "X" or "O" to the player
+    if len(games[game_id]["players"]) == 0:
+        games[game_id]["players"][player_id] = "X"
+        games[game_id]["turn"] = player_id  # First player to join gets the first turn
+    elif len(games[game_id]["players"]) == 1:
+        games[game_id]["players"][player_id] = "O"
+    
+    games[game_id]["special_pieces"][player_id] = None
     
     # Send the initial game state to the newly connected player
     initial_state = {
@@ -49,9 +56,14 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         while True:
             data = await websocket.receive_text()
             move = json.loads(data)
-            
+            print(move)
             # Process the move
-            response = process_move(game_id, move)
+            response = process_move(game_id, move, games)
+            
+            # Update the turn to the next player
+            current_turn = games[game_id]["turn"]
+            next_turn = next(pid for pid in games[game_id]["players"] if pid != current_turn)
+            games[game_id]["turn"] = next_turn
             
             # Send updated game state to both players
             for ws in active_connections[game_id]:
@@ -62,6 +74,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         if not active_connections[game_id]:
             del active_connections[game_id]
             del games[game_id]
+        print(f"Client {player_id} disconnected")
 
 
 @app.get("/matchmaking")
@@ -75,8 +88,8 @@ def matchmaking():
     new_game_id = str(len(games) + 1)
     games[new_game_id] = {
         "board": [["" for _ in range(9)] for _ in range(9)],
-        "turn": "X",
+        "turn": None,
         "players": {},
-        "special_pieces": {"X": None, "O": None},
+        "special_pieces": {},
     }
     return {"game_id": new_game_id}

@@ -2,7 +2,8 @@ def process_move(game_id: str, move: dict, games: dict):
     """Handles game logic, special piece effects, and updates the board."""
     game = games[game_id]
     x, y = move["x"], move["y"]
-    player = move["player"]
+    player_id = move["player"]
+    player = games[game_id]["players"][player_id]
     piece_type = move.get("piece_type", "normal")
     
     if game["board"][x][y] == "":  # If the cell is empty
@@ -16,7 +17,7 @@ def process_move(game_id: str, move: dict, games: dict):
         elif piece_type == "stacker":
             apply_stacker_ability(game, x, y)
         
-        game["turn"] = "O" if player == "X" else "X"  # Switch turn
+        game["turn"] = next(pid for pid in games[game_id]["players"] if pid != player_id)
     
     return {"board": game["board"], "turn": game["turn"]}
 
