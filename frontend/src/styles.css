@@ -141,3 +141,40 @@ body {
   .board-overlay.X {
     color: red;
   }
+
+  .game-rules {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    text-align: left;
+  }
+  
+  .game-rules h3, .game-rules h4 {
+    color: #ffd700;
+    margin-top: 15px;
+  }
+  
+  .game-rules ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .game-rules li {
+    margin: 8px 0;
+  }
+  
+  .game-rules p {
+    margin: 10px 0;
+    line-height: 1.5;
+  }
+
+  .game-status {
+    margin: 20px 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }

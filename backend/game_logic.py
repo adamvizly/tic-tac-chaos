@@ -4,7 +4,27 @@ def is_board_playable(mini_board):
     Check if a mini-board (a 3x3 list) is playable.
     It's playable if it is not won and at least one cell is empty.
     """
-    # Simple check: if any cell is empty, assume board is playable.
+    # First check if the board is won
+    win_patterns = [
+        # Rows
+        [(0,0), (0,1), (0,2)],
+        [(1,0), (1,1), (1,2)],
+        [(2,0), (2,1), (2,2)],
+        # Columns
+        [(0,0), (1,0), (2,0)],
+        [(0,1), (1,1), (2,1)],
+        [(0,2), (1,2), (2,2)],
+        # Diagonals
+        [(0,0), (1,1), (2,2)],
+        [(0,2), (1,1), (2,0)]
+    ]
+
+    # Check for wins
+    for pattern in win_patterns:
+        values = [mini_board[i][j] for i, j in pattern]
+        if values[0] != "" and values[0] == values[1] == values[2]:
+            return False  # Board is won, not playable
+    # if any cell is empty and not won, assume board is playable.
     for row in mini_board:
         for cell in row:
             if cell == "":
@@ -23,16 +43,27 @@ def process_move(game_id: str, move: dict, games: dict):
     # Enforce active board rule if set:
     if game.get("activeBigCell") is not None:
         active = game["activeBigCell"]
-        print(active)
-        # Determine which big cell the move is in.
-        move_big_row, move_big_col = x // 3, y // 3
-        if move_big_row != active["row"] or move_big_col != active["col"]:
-            return {
-                "error": f"Invalid move. You must play in board ({active['row']}, {active['col']}).",
-                "board": game["board"],
-                "turn": player_id,
-                "activeBigCell": game["activeBigCell"]
-            }
+        # Extract the active mini-board
+        active_mini_board = []
+        for i in range(3):
+            row = []
+            for j in range(3):
+                row.append(game["board"][active["row"] * 3 + i][active["col"] * 3 + j])
+            active_mini_board.append(row)
+
+        # Only enforce active board rule if the board is playable
+        if is_board_playable(active_mini_board):
+            # Determine which big cell the move is in
+            move_big_row, move_big_col = x // 3, y // 3
+            if move_big_row != active["row"] or move_big_col != active["col"]:
+                return {
+                    "error": f"Invalid move. You must play in board ({active['row']}, {active['col']}).",
+                    "board": game["board"],
+                    "turn": player_id,
+                    "activeBigCell": game["activeBigCell"]
+                }
+        else:
+            game["activeBigCell"] = None
     
     # Process the move if the cell is empty:
     if game["board"][x][y] == "":
@@ -74,7 +105,7 @@ def process_move(game_id: str, move: dict, games: dict):
 
 
 def apply_phantom_ability(game, player, x, y):
-    """Phantom ability: Swap with opponent's next piece down."""
+    """Phantom ability: Swap with opponent's last piece down."""
     for i in range(x + 1, 9):
         if game["board"][i][y] != "":
             game["board"][x][y], game["board"][i][y] = game["board"][i][y], game["board"][x][y]
