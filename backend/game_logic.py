@@ -65,8 +65,27 @@ def process_move(game_id: str, move: dict, games: dict):
         else:
             game["activeBigCell"] = None
     
-    # Process the move if the cell is empty:
-    if game["board"][x][y] == "":
+    # Check if move is valid based on piece type
+    if piece_type == "stacker":
+        # Stacker can be placed on empty cells or opponent's pieces
+        if game["board"][x][y] == "" or game["board"][x][y] != player:
+            game["board"][x][y] = player
+        else:
+            return {
+                "error": "Invalid move. Stacker can't be placed on your own piece.",
+                "board": game["board"],
+                "turn": player_id,
+                "activeBigCell": game["activeBigCell"]
+            }
+    else:
+        # Other pieces can only be placed on empty cells
+        if game["board"][x][y] != "":
+            return {
+                "error": "Invalid move. Cell is not empty.",
+                "board": game["board"],
+                "turn": player_id,
+                "activeBigCell": game["activeBigCell"]
+            }
         game["board"][x][y] = player
         
         # Handle special pieces
@@ -74,8 +93,6 @@ def process_move(game_id: str, move: dict, games: dict):
             apply_phantom_ability(game, player, x, y)
         elif piece_type == "crusher":
             apply_crusher_ability(game, x, y)
-        elif piece_type == "stacker":
-            apply_stacker_ability(game, x, y)
         
         game["turn"] = next(pid for pid in games[game_id]["players"] if pid != player_id)
         
@@ -105,12 +122,27 @@ def process_move(game_id: str, move: dict, games: dict):
 
 
 def apply_phantom_ability(game, player, x, y):
-    """Phantom ability: Swap with opponent's last piece down."""
-    for i in range(x + 1, 9):
-        if game["board"][i][y] != "":
-            game["board"][x][y], game["board"][i][y] = game["board"][i][y], game["board"][x][y]
-            break
-
+    """"Phantom ability: Swap with opponent's first piece to left or right."""
+    # First try to find an opponent's piece to the right
+    right_index = None
+    left_index = None
+    for j in range(y + 1, 9):
+        if game["board"][x][j] != "" and game["board"][x][j] != player:
+            right_index = j
+    
+    # If no piece found to the right, try to find one to the left
+    for j in range(y - 1, -1, -1):
+        if game["board"][x][j] != "" and game["board"][x][j] != player:
+            left_index = j
+            
+    if right_index is not None and left_index is None:
+        game["board"][x][y], game["board"][x][right_index] = game["board"][x][right_index], game["board"][x][y]
+    elif left_index is not None and right_index is None:
+        game["board"][x][y], game["board"][x][left_index] = game["board"][x][left_index], game["board"][x][y]
+    elif right_index is not None and left_index is not None:
+        game["board"][x][y], game["board"][x][min(right_index, left_index)] = game["board"][x][min(right_index, left_index)], game["board"][x][y]
+    else:
+        return
 
 def apply_crusher_ability(game, x, y):
     """Crusher ability: Push adjacent (not diagonal) pieces one spot away."""
@@ -122,8 +154,3 @@ def apply_crusher_ability(game, x, y):
             if 0 <= nnx < 9 and 0 <= nny < 9 and game["board"][nnx][nny] == "":
                 game["board"][nnx][nny] = game["board"][nx][ny]
                 game["board"][nx][ny] = ""
-
-
-def apply_stacker_ability(game, x, y):
-    """Stacker ability: Allows stacking on top of other pieces."""
-    pass  # Handled by default rules, just allows stacking

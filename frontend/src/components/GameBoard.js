@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useState } from 'react';
 import Cell from "./Cell";
 
 function GameBoard({ gameState, playerId, socket }) {
+  const [selectedPiece, setSelectedPiece] = useState(null);
+  const [usedPieces, setUsedPieces] = useState({
+    phantom: false,
+    crusher: false,
+    stacker: false
+  });
+
   if (!gameState || !Array.isArray(gameState.board)) {
     return <div>Loading game...</div>;
   }
@@ -10,21 +17,35 @@ function GameBoard({ gameState, playerId, socket }) {
 
   // Sends a move to the backend.
   // Converts mini-board indices into overall board indices using your mapping.
-  const handleCellClick = (bigRow, bigCol, miniRow, miniCol, piece_type = "normal") => {
-    console.log("handleCellClick", bigRow, bigCol, miniRow, miniCol);
-    // Using your mapping (note: adjust as needed if mapping needs to be flipped)
+  const handleCellClick = (bigRow, bigCol, miniRow, miniCol) => {
     const overallRow = bigRow * 3 + miniCol;
     const overallCol = bigCol * 3 + miniRow;
-    console.log(overallRow, overallCol);
+    
     if (socket && turn === playerId) {
-      console.log("sending move", overallRow, overallCol, playerId, piece_type);
       const move = {
         x: overallRow,
         y: overallCol,
         player: playerId,
-        piece_type: piece_type,
+        piece_type: selectedPiece || "normal"
       };
       socket.send(JSON.stringify(move));
+      // If a special piece was used, mark it as used and deselect it
+      if (selectedPiece) {
+        setUsedPieces(prev => ({
+          ...prev,
+          [selectedPiece]: true
+        }));
+        setSelectedPiece(null);
+      }
+    }
+  };
+
+  // Handle special piece selection
+  const handlePieceSelect = (pieceType) => {
+    if (selectedPiece === pieceType) {
+      setSelectedPiece(null); // Deselect if already selected
+    } else {
+      setSelectedPiece(pieceType); // Select new piece
     }
   };
 
@@ -134,6 +155,29 @@ function GameBoard({ gameState, playerId, socket }) {
             })}
           </div>
         ))}
+      </div>
+      <div className="special-pieces-container">
+        <button 
+          className={`special-piece-btn ${selectedPiece === 'phantom' ? 'selected' : ''}`}
+          onClick={() => handlePieceSelect('phantom')}
+          disabled={usedPieces.phantom || turn !== playerId}
+        >
+          🌀 Phantom
+        </button>
+        <button 
+          className={`special-piece-btn ${selectedPiece === 'crusher' ? 'selected' : ''}`}
+          onClick={() => handlePieceSelect('crusher')}
+          disabled={usedPieces.crusher || turn !== playerId}
+        >
+          💥 Crusher
+        </button>
+        <button 
+          className={`special-piece-btn ${selectedPiece === 'stacker' ? 'selected' : ''}`}
+          onClick={() => handlePieceSelect('stacker')}
+          disabled={usedPieces.stacker || turn !== playerId}
+        >
+          📦 Stacker
+        </button>
       </div>
     </div>
   );

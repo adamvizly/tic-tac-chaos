@@ -39,9 +39,9 @@ function Matchmaking({ setGameId, setPlayerId }) {
 
         <h4>Special Pieces:</h4>
         <ul>
-          <li>🌀 <strong>Phantom</strong>: Can swap positions with an opponent's piece below it</li>
-          <li>💥 <strong>Crusher</strong>: Pushes adjacent pieces one space away</li>
-          <li>📦 <strong>Stacker</strong>: Can be placed on top of existing pieces</li>
+          <li>🌀 <strong>Phantom</strong>: Can swap positions with an opponent's piece to the left or right</li>
+          <li>💥 <strong>Crusher</strong>: Pushes adjacent pieces one space away (but not diagonally)</li>
+          <li>📦 <strong>Stacker</strong>: Can be placed on top of existing pieces (but not your own)</li>
         </ul>
         <p>Each player gets one of each special piece per game - use them wisely!</p>
       </div>

@@ -178,3 +178,36 @@ body {
     color: #ffd700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
+
+  .special-pieces-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .special-piece-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: 2px solid #ffd700;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .special-piece-btn:hover:not(:disabled) {
+    background-color: rgba(255, 215, 0, 0.2);
+  }
+  
+  .special-piece-btn.selected {
+    background-color: rgba(255, 215, 0, 0.3);
+    transform: scale(1.05);
+  }
+  
+  .special-piece-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #666;
+  }
