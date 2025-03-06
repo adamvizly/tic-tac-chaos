@@ -49,6 +49,7 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str, player_id: str)
         "board": games[game_id]["board"],
         "turn": games[game_id]["turn"],
         "special_pieces": games[game_id]["special_pieces"],
+        "players": games[game_id]["players"]
     }
     await websocket.send_text(json.dumps(initial_state))
     

@@ -42,6 +42,9 @@ function GameBoard({ gameState, playerId, socket }) {
 
   // Handle special piece selection
   const handlePieceSelect = (pieceType) => {
+    const winner = isGameWon();
+    if (winner) return; // Prevent piece selection if game is won
+
     if (selectedPiece === pieceType) {
       setSelectedPiece(null); // Deselect if already selected
     } else {
@@ -103,19 +106,22 @@ function GameBoard({ gameState, playerId, socket }) {
 
   const winner = isGameWon();
   const playerSymbol = gameState.players?.[playerId];
+  console.log("playerSymbol", gameState);
 
   // Get status message
   let statusMessage;
   if (winner) {
     statusMessage = winner === playerSymbol ? "You Won!" : "You Lost!";
   } else {
-    statusMessage = turn === playerId ? "It's Your Turn" : "It's Opponent's Turn";
+    statusMessage = turn === playerId ?
+      `It's Your Turn (${playerSymbol})` : 
+      `It's Opponent's Turn (${playerSymbol === 'X' ? 'O' : 'X'})`;
   }
 
   return (
     <div>
       <h2 className="game-status">{statusMessage}</h2>
-      <div className="game-board big">
+      <div className={`game-board big ${winner ? 'game-ended' : ''}`}>
         {/* Loop over 3 big rows */}
         {[0, 1, 2].map((bigRow) => (
           <div key={bigRow} className="big-row">

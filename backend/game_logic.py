@@ -60,7 +60,8 @@ def process_move(game_id: str, move: dict, games: dict):
                     "error": f"Invalid move. You must play in board ({active['row']}, {active['col']}).",
                     "board": game["board"],
                     "turn": player_id,
-                    "activeBigCell": game["activeBigCell"]
+                    "activeBigCell": game["activeBigCell"],
+                    "players": game["players"]
                 }
         else:
             game["activeBigCell"] = None
@@ -75,7 +76,8 @@ def process_move(game_id: str, move: dict, games: dict):
                 "error": "Invalid move. Stacker can't be placed on your own piece.",
                 "board": game["board"],
                 "turn": player_id,
-                "activeBigCell": game["activeBigCell"]
+                "activeBigCell": game["activeBigCell"],
+                "players": game["players"]
             }
     else:
         # Other pieces can only be placed on empty cells
@@ -84,7 +86,8 @@ def process_move(game_id: str, move: dict, games: dict):
                 "error": "Invalid move. Cell is not empty.",
                 "board": game["board"],
                 "turn": player_id,
-                "activeBigCell": game["activeBigCell"]
+                "activeBigCell": game["activeBigCell"],
+                "players": game["players"]
             }
         game["board"][x][y] = player
         
@@ -117,7 +120,8 @@ def process_move(game_id: str, move: dict, games: dict):
     return {
         "board": game["board"],
         "turn": game["turn"],
-        "activeBigCell": game["activeBigCell"]
+        "activeBigCell": game["activeBigCell"],
+        "players": game["players"]
     }
 
 
