@@ -12,13 +12,13 @@ RUN npm install
 # Copy the rest of the frontend code
 COPY frontend/ .
 
-# Build the frontend
+# Build the frontend (Create React App outputs to 'build')
 RUN npm run build
 
 # Use a lightweight web server to serve the frontend
 FROM nginx:alpine
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/build /usr/share/nginx/html
 
 # Create nginx config to proxy API and WebSocket requests
 RUN mkdir -p /etc/nginx/conf.d
