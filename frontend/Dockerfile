@@ -3,6 +3,10 @@ FROM node:16 as build
 
 WORKDIR /app
 
+# Accept build argument for API URL
+ARG REACT_APP_API_URL=http://localhost:8000
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
+
 # Copy package.json and package-lock.json
 COPY frontend/package*.json ./
 
