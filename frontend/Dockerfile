@@ -15,6 +15,9 @@ COPY frontend/ .
 # Build the frontend (Create React App outputs to 'build')
 RUN npm run build
 
+# Verify build succeeded
+RUN test -d /app/build || (echo "Build failed - no /app/build directory found" && exit 1)
+
 # Use a lightweight web server to serve the frontend
 FROM nginx:alpine
 
