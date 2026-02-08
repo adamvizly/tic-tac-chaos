@@ -1,9 +1,8 @@
-// Use relative path for WebSocket - will be proxied by Nginx
-const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const host = window.location.host;
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const WS_URL = API_URL.replace('https', 'wss').replace('http', 'ws');
 
 export function connectWebSocket(gameId, playerId, setGameState) {
-    const socket = new WebSocket(`${protocol}//${host}/ws/${gameId}/${playerId}`);
+    const socket = new WebSocket(`${WS_URL}/ws/${gameId}/${playerId}`);
   
     socket.onopen = () => {
       console.log("WebSocket connected to:", `${WS_URL}/ws/${gameId}/${playerId}`);
