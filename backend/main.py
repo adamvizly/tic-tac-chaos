@@ -7,7 +7,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to specific frontend domain if needed
+    allow_origins=["https://tic-tac-chaos-frontend-production.up.railway.app", "http://localhost:5173"],  # Change this to specific frontend domain if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
