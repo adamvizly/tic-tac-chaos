@@ -23,6 +23,9 @@ FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
 
+# Remove default nginx config to avoid conflicts
+RUN rm -f /etc/nginx/conf.d/default.conf
+
 # Copy the nginx configuration
 COPY frontend/nginx.conf /etc/nginx/nginx.conf
 
