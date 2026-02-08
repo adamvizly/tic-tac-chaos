@@ -1,10 +1,11 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const WS_URL = API_URL.replace('https', 'wss').replace('http', 'ws');
 
 export function connectWebSocket(gameId, playerId, setGameState) {
-    const socket = new WebSocket(`${API_URL.replace('https', 'wss').replace('http', 'ws')}/ws/${gameId}/${playerId}`);
+    const socket = new WebSocket(`${WS_URL}/ws/${gameId}/${playerId}`);
   
     socket.onopen = () => {
-      console.log("WebSocket connected");
+      console.log("WebSocket connected to:", `${WS_URL}/ws/${gameId}/${playerId}`);
     };
   
     socket.onmessage = (event) => {
@@ -13,7 +14,7 @@ export function connectWebSocket(gameId, playerId, setGameState) {
         console.log("Game state received:", gameState);
   
         if (typeof setGameState === "function") {
-          setGameState(gameState);  // Ensure it's a function before calling
+          setGameState(gameState);
         } else {
           console.error("setGameState is not a function:", setGameState);
         }

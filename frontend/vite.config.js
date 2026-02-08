@@ -1,5 +1,12 @@
-export default {
-  define: {
-    __API_URL__: JSON.stringify(process.env.VITE_API_URL)
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  server: {
+    proxy: {
+      '/ws': {
+        target: 'wss://tic-tac-chaos-production.up.railway.app',
+        ws: true
+      }
+    }
   }
-}
+})
