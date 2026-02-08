@@ -1,11 +1,12 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-const WS_URL = API_URL.replace('https', 'wss').replace('http', 'ws');
+// Use relative paths - Nginx will proxy to backend
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const host = window.location.host;
 
 export function connectWebSocket(gameId, playerId, setGameState) {
-    const socket = new WebSocket(`${WS_URL}/ws/${gameId}/${playerId}`);
+    const socket = new WebSocket(`${protocol}//${host}/ws/${gameId}/${playerId}`);
   
     socket.onopen = () => {
-      console.log("WebSocket connected to:", `${WS_URL}/ws/${gameId}/${playerId}`);
+      console.log("WebSocket connected to:", `${protocol}//${host}/ws/${gameId}/${playerId}`);
     };
   
     socket.onmessage = (event) => {

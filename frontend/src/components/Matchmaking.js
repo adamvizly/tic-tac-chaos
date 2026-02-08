@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
 function Matchmaking({ setGameId, setPlayerId }) {
   const [loading, setLoading] = useState(false);
 
   const findGame = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/matchmaking`);
+      const response = await fetch('/matchmaking');
       const data = await response.json();
 
       if (data.game_id) {

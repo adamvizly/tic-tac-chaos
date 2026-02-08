@@ -3,10 +3,6 @@ FROM node:16 as build
 
 WORKDIR /app
 
-# Accept build argument for API URL
-ARG REACT_APP_API_URL=http://localhost:8000
-ENV REACT_APP_API_URL=${REACT_APP_API_URL}
-
 # Copy package.json and package-lock.json
 COPY frontend/package*.json ./
 
@@ -27,8 +23,46 @@ FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Simple nginx config for SPA
-RUN echo 'server { listen 80; root /usr/share/nginx/html; index index.html; location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ { expires 1y; } location / { try_files $uri /index.html; } }' > /etc/nginx/conf.d/default.conf
+# Configure Nginx with reverse proxy to backend
+RUN cat > /etc/nginx/conf.d/default.conf << 'EOF'
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Serve static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Proxy WebSocket to backend
+    location /ws/ {
+        proxy_pass https://tic-tac-chaos-production.up.railway.app;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host tic-tac-chaos-production.up.railway.app;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Proxy matchmaking API to backend
+    location /matchmaking {
+        proxy_pass https://tic-tac-chaos-production.up.railway.app;
+        proxy_set_header Host tic-tac-chaos-production.up.railway.app;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # SPA fallback
+    location / {
+        try_files $uri /index.html;
+    }
+}
+EOF
 
 EXPOSE 80
 
