@@ -6,7 +6,7 @@ function Matchmaking({ setGameId, setPlayerId }) {
   const findGame = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/matchmaking');
+      const response = await fetch('https://tic-tac-chaos-production.up.railway.app/matchmaking');
       const data = await response.json();
 
       if (data.game_id) {
