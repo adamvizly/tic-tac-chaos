@@ -1,4 +1,4 @@
-const API_URL = 'https://tic-tac-chaos-production.up.railway.app';
+const API_URL = 'http://localhost:8000';
 const WS_URL = API_URL.replace('https', 'wss').replace('http', 'ws');
 
 export function connectWebSocket(gameId, playerId, setGameState) {
