@@ -27,9 +27,8 @@ FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Create nginx config to proxy API and WebSocket requests
-RUN mkdir -p /etc/nginx/conf.d
-COPY frontend/nginx.conf /etc/nginx/nginx.conf
+# Simple nginx config for SPA
+RUN echo 'server { listen 80; root /usr/share/nginx/html; index index.html; location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ { expires 1y; } location / { try_files $uri /index.html; } }' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
