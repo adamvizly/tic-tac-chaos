@@ -6,7 +6,7 @@ function Matchmaking({ setGameId, setPlayerId }) {
   const findGame = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/matchmaking');
+      const response = await fetch('/api/matchmaking');
       const data = await response.json();
 
       if (data.game_id) {
