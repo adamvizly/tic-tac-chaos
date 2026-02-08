@@ -1,5 +1,7 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 export function connectWebSocket(gameId, playerId, setGameState) {
-    const socket = new WebSocket(`ws://localhost:8000/ws/${gameId}/${playerId}`);
+    const socket = new WebSocket(`${API_URL.replace('https', 'wss').replace('http', 'ws')}/ws/${gameId}/${playerId}`);
   
     socket.onopen = () => {
       console.log("WebSocket connected");
@@ -30,4 +32,3 @@ export function connectWebSocket(gameId, playerId, setGameState) {
   
     return socket;
   }
-  
