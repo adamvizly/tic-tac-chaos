@@ -4,13 +4,13 @@ FROM node:16 as build
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy the rest of the frontend code
-COPY . .
+COPY frontend/ .
 
 # Build the frontend
 RUN npm run build
@@ -22,7 +22,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Create nginx config to proxy API and WebSocket requests
 RUN mkdir -p /etc/nginx/conf.d
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY frontend/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
